@@ -1,0 +1,20 @@
+Group5.netsec.infra.inf.unideb.hu
+login: root student
+1. vlan konfigurálás: interfaces, devices, vlan -> interfaces, assigment -> vlan, enable interface, ne blokkoljunk semmit, ip cím -> services, dhcp
+2. container, templateből, 1024 ram, egyéb
+3. firewall, rules, <interfész>, (pl.) direction: vlan10 net
+4. tűzfal portletiltás/átengedés; firewall, rules, direction, protocol, source, dest, port; sorrend fentről le
+5. bastion host, /etc/hosts.allow, /etc/hosts.deny: sshd: ip/all; ssh-keygen kliensen; bastion-ben ./ssh/authorized_keys -be a kulcs;
+.ssh/config kliensen:
+Host bastion
+  User student #célpont gépen név
+  IdentityFile /home/student/.shh/bastion #saját gépen lévő fájl
+  Port 22 #célpont nyitott portja
+  HostName <ip> #célpont ipje
+Host belso1
+  User student
+  IdentityFile /home/student/.ssh/bastion #lehet külön kulcs
+  Port 22
+  HostName <ip> #belső ip
+  ProxyJump #melyik gépen keresztül lépek be
+belső gépen ./ssh/authorized_keys -be a kulcs
