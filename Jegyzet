@@ -28,3 +28,11 @@ ubuntu server download online, linket bemásoljuk a proxmox local iso images és
 6. monitoring rendszerek: System monitoring, Application monitoring, Intrusion detection/prevention software (IDS/IPS)
   Network IDS/IPS és Host IDS/IPS: Wazuh (ELK stackre épül)
   System monitoring (mindig host alapú): Zabbix és Nagios
+
+7. docker -> containerization
+  VM, megfelelő erőforrások, hálózatba bevonás
+  rássh-zunk egy grafikus gépről, https://docs.docker.com/engine/install/ubuntu/ első három (apt-os download)
+  felhasználó docker csoporthoz: sudo usermod -aG docker student, újracsatlakozol ssh-n
+  wazzuh docker: https://documentation.wazuh.com/current/deployment-options/docker/wazuh-container.html , single node, git clone-os parancs, own certificates (optional nem számít), deployment
+  wazuh agent: valamelyik másik gépre, https://documentation.wazuh.com/current/installation-guide/wazuh-agent/wazuh-agent-package-linux.html
+  wazzuh-n belül 
