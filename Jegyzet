@@ -37,11 +37,35 @@ ubuntu server download online, linket bemásoljuk a proxmox local iso images és
   wazuh agent: valamelyik másik gépre, https://documentation.wazuh.com/current/installation-guide/wazuh-agent/wazuh-agent-package-linux.html
 
 8. Zabbix (Nagios)
-  új container
+  új container (név, jelszó, template, 20GB, 2, 1024Mb, hálózat/ip)
   sudo apt install mariadb-server, mysql_secure_installation (enter, Y, n, Y, Y, Y, Y), https://www.zabbix.com/download?zabbix=7.4&os_distribution=ubuntu&os_version=22.04&components=server_frontend_agent&db=mysql&ws=apache
   kiválasztjuk az opciókat, (jelszó és felhasználónevet átírjuk) create user zabbix@localhost identified by 'password'; , zcat parancs hosszú ideig fut és módosítsuk a felhasználónevet ha kell, jelszó amit most adtunk meg
   dockerben locale-gen "en-US", dpkg-reconfigure locales és kiválasztjuk az en-US UTF-8-as verziót, default-nak betesszük, majd reboot
-  megnyitjuk ip/zabbix webhelyet, next, beállítunk mindent (vagy csak a jelszót), szervernévnek valami, időzóna -> belépünk
+  megnyitjuk ip/zabbix webhelyet (Admin/zabbix), next, beállítunk mindent (vagy csak a jelszót), szervernévnek valami, időzóna -> belépünk
   agent telepítés, ugyan az a weboldal csak agent-öt választunk, telepítés után nano /etc/zabbix/zabbix_agentd.conf és beírjuk a jó helyre a szerver ipjét, majd agent-öt újraindítjuk
   Networking, Hosts, Create host, név, template group, Linux by Zabbix, host groups, linux servers, interfaces: agent és az agent ip címe (confirmölés után online-nak kell lennie egy kis idő után)
+  Monitoring, triggers, new trigger, add condition
+
+9. Ansible
+  (még Puppet, Chef; Ansible GUI az a Semaphore UI)
+  Ansible előnye hogy nem kellenek ágensek, csak ssh kell
+  https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html (ubuntu része)
+  cd ./etc/ansible
+  nano hosts,
+    [csoport]
+    <ip>
+    <ip>
+    ...
+    [csoport:vars]
+    ansible_user=
+    ansible_password=
+    #csak ha kell rendszergazdai jog
+    ansible_become_user= 
+    #su - rendszergazda jelszava; sudo su - felhasználó jelszava (sudo-nál usermod -aG sudo <felhasználó> a megfelelő felhasználóra)
+    ansible_become_method=
+    ansible_become_password=
+  nano ansible.cfg
+    [defaults]
+    host_key_checking = false
+  ansible all -m ansible.builtin.ping (ssh-t állítsunk ha nem enged)
 
