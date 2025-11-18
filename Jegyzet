@@ -1,5 +1,8 @@
+((tartalom)) -- nem olyan fontos
+
 Group5.netsec.infra.inf.unideb.hu
 login: root student
+
 1. vlan konfigurálás: interfaces, devices, vlan -> interfaces, assigment -> vlan, enable interface, ne blokkoljunk semmit, ip cím -> services, dhcp
 
 2. container, templateből, 1024 ram, egyéb
@@ -23,13 +26,14 @@ Host belso1
   ProxyJump #melyik gépen keresztül lépek be
 belső gépen ./ssh/authorized_keys -be a kulcs
 bastion-ön és belső gépe(ke)n /etc/ssh/sshd_config: PasswordAuthentication no, majd systemctl restart ssh
-ubuntu server download online, linket bemásoljuk a proxmox local iso images és from url
+((ubuntu server download online, linket bemásoljuk a proxmox local iso images és from url))
 
-6. monitoring rendszerek: System monitoring, Application monitoring, Intrusion detection/prevention software (IDS/IPS)
+((6. monitoring rendszerek: System monitoring, Application monitoring, Intrusion detection/prevention software (IDS/IPS)
   Network IDS/IPS és Host IDS/IPS: Wazuh (ELK stackre épül)
-  System monitoring (mindig host alapú): Zabbix és Nagios
+  System monitoring (mindig host alapú): Zabbix és Nagios))
 
-7. docker -> containerization
+7. Wazzuh:
+  docker -> containerization
   VM, megfelelő erőforrások, hálózatba bevonás
   rássh-zunk egy grafikus gépről (tűzfalon engedjük át), https://docs.docker.com/engine/install/ubuntu/ első három (apt-os download)
   felhasználó docker csoporthoz: sudo usermod -aG docker student, újracsatlakozol ssh-n
@@ -47,7 +51,7 @@ ubuntu server download online, linket bemásoljuk a proxmox local iso images és
   Monitoring, triggers, new trigger, add condition
 
 9. Ansible
-  (még Puppet, Chef; Ansible GUI az a Semaphore UI)
+  ((még Puppet, Chef; Ansible GUI az a Semaphore UI))
   Ansible előnye hogy nem kellenek ágensek, csak ssh kell
   https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html (ubuntu része)
   cd ./etc/ansible
@@ -61,11 +65,28 @@ ubuntu server download online, linket bemásoljuk a proxmox local iso images és
     ansible_password=
     #csak ha kell rendszergazdai jog
     ansible_become_user= 
-    #su - rendszergazda jelszava; sudo su - felhasználó jelszava (sudo-nál usermod -aG sudo <felhasználó> a megfelelő felhasználóra)
+    #su - rendszergazda jelszava; sudo - felhasználó jelszava (sudo-nál usermod -aG sudo <felhasználó> a megfelelő felhasználóra)
     ansible_become_method=
     ansible_become_password=
   nano ansible.cfg
     [defaults]
-    host_key_checking = false
-  ansible all -m ansible.builtin.ping (ssh-t állítsunk ha nem enged)
+    host_key_checking = false #kényelmi beállítás
+  ansible all -m ansible.builtin.ping (megnézi hogy elérhetőek-e a gépek) (ssh-t állítsunk ha nem enged)
+  ansible all -m ansible.builtin.command whoami
+  https://arato.inf.unideb.hu/bertok.csanad/ playbook-okhoz példa
+    alap struktúránál ha a tasks felé beírjuk a "become: true" akkor rendszergazdaként is futtathatunk
+    ansible playbook <playbook.yml>
+      -e <változó=érték> -- amit átadunk a playbooknak
+    chatgpt további segítségnek
 
+DECEMBER 2 ZH
+
+tippek:
+  routereket klónozni gyorsabb
+  neveket őrizzük meg
+  
+pl. feladatra
+  első router: create vm, bridge vmbr1
+  (proxmox csoportra kattintva) create linux bridge, vmbr2, vlan aware
+  routernél add network device, vmbr2
+  routert elindítjuk, telepítjük,
