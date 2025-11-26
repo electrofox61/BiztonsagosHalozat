@@ -1,9 +1,60 @@
+-----------------------
+ZH LÉPÉSEK
+-----------------------
+
+(emlékeztetésnek, management mindig a LAN oldalról éri le a routert, ennek megfelelően kell vmbridge-t állítani és frissíteni a kapcsolatot amikor másik routerre váltunk)
+
+R2  - megfelelő bridge-ket beállítjuk, WAN oldalra már vmbr1, LAN oldalra vmbr2 (vagy amit létrehozunk, figyeljünk arra hogy vlan aware legyen)
+    - telepítéskor megállítjuk az interfészbeállításért, a megfelelőt beállítjuk WAN-nak és LAN-nak (általában vtnet0 és vtnet1)
+    - installer/opnsense fiókkal lépünk be, így telepítjük  
+      - billentyűkiosztásnál magyar 102 billentyűs
+      - enter, enter, space, enter, yes, enter
+      (- hosszabb várás jön, ilyenkorra érdemes lenne berakni valamit, bridge-k létrehozása, container-ek létrehozása, stb.)
+      - megváltoztatjuk a root password-öt
+      - complete installation
+    - bejelentkezés után a 2., ip beállítást választjuk
+      - WAN, n, 192.168.1.50, 24, 192.168.1.1 (nem tudom kell-e ez), y, n, enter, n, n, n
+      - LAN, n, 10.0.0.1, 24, enter, y, n, enter, y, 10.0.0.150, 10.0.0.200, n, n, n
+    - ezután R2 képes az internetet pingelni
+    - Web GUI
+      - ellenőrizhetjük az eddigi beállításokat, de elméletben megjegyzi őket és hatásba lépnek
+      - ****EZEN A PONTON ÉRDEMES LEKLÓNOZNUNK, KÉSŐBB NAGYOBB SZENVEDÉS LESZ**** (további infó R3-nál)
+      - VLAN-ok beállítása jön
+      - létrehozzuk a vlan-okat, üres "device" rész, parent legyen a LAN, vlan tag a megfelelő szám, és description ajánlatos (pl. vlan10)
+        - ha létrehoztuk mindhármat akkor Apply
+      - Assignments, kiválasztjuk a vlant és adunk neki egy descriptiont (pl. vlan10)
+        - ha mindhárom kész akkor Save
+      - egyenként mindhárom vlan-on (az interfész részben)
+        - Enable interface, static ipv4, ip-hez 10.0.X.1 ahol az X a vlan száma, /24
+          - Save, és Apply Changes
+      - DHCP jön, mindegyik vlan-hoz
+        - services, dhcpv4, megfelelő vlan
+        - enable, range: 10.0.X.150-10.0.X.200 (semmi más)
+        - ha statikus dhcp mapping kell, mint R3-hoz, akkor
+          - legalul DHCP static mapping, + jel
+          - az R3 külső bridge-ének a mac address-e, ip address (10.0.10.50), Save
+      - ha ezekkel megvagyunk akkor következőnek a tűzfal jön:
+        - minden vlan-hoz beteszünk két szabályt, egy ami befelé (in) enged mindent, és egyet ami kifelé (out) enged mindent
+      - tiltások: 
+  +--------- még nincs megcsinálva
+
+R3  - LEKLÓNOZZUK AZ R2-ŐT, DE MÉG NEM INDÍTJUK EL
+    - létrehozzuk a vmbr3-at ha még nem tettünk
+    - Hardware, network device, az elsőt átállítjuk vmbr2-re és vlan tag-et adunk neki (10), a másodikat átállítjuk vmbr3-ra
+    - belépés után átállítjuk az ip-ket:
+      - WAN, Y, n, enter, y, n, enter, n, n, n
+      - LAN, n, 20.0.0.1, 24, enter, y, n, enter, y, 20.0.0.150, 20.0.0.200, n, n, n
+    (- ilyenkor érdemes visszatérni a DHCP-nél a statikus mapping-hez, mivel már megvan a mac address)
+    
+
+-----------------------
+
 ((tartalom)) -- nem olyan fontos
 
 Group5.netsec.infra.inf.unideb.hu
 login: root student
 
-1. vlan konfigurálás: interfaces, devices, vlan -> interfaces, assigment -> vlan, enable interface, ne blokkoljunk semmit, ip cím -> services, dhcp
+1. vlan konfigurálás: interfaces, other devices, vlan -> interfaces, assigment -> vlan, enable interface, ne blokkoljunk semmit, ip cím -> services, dhcp
 
 2. container, templateből, 1024 ram, egyéb
 
