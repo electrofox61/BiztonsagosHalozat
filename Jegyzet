@@ -3,6 +3,7 @@ ZH LÉPÉSEK
 -----------------------
 
 (emlékeztetésnek, management mindig a LAN oldalról éri le a routert, ennek megfelelően kell vmbridge-t állítani és frissíteni a kapcsolatot amikor másik routerre váltunk)
+!!Limitált tárhelyünk van, ne adjunk feleslegesen sok helyet mindennek, routereknek 16GB, maximum 32GB helyet adunk (még nem 100% hogy ez a probléma, de 64 GB nem kell egy routernek)
 
 R2  - megfelelő bridge-ket beállítjuk, WAN oldalra már vmbr1, LAN oldalra vmbr2 (vagy amit létrehozunk, figyeljünk arra hogy vlan aware legyen)
     - telepítéskor megállítjuk az interfészbeállításért, a megfelelőt beállítjuk WAN-nak és LAN-nak (általában vtnet0 és vtnet1)
@@ -35,8 +36,9 @@ R2  - megfelelő bridge-ket beállítjuk, WAN oldalra már vmbr1, LAN oldalra vm
           - az R3 külső bridge-ének a mac address-e, ip address (10.0.10.50), Save
       - ha ezekkel megvagyunk akkor következőnek a tűzfal jön:
         - minden vlan-hoz beteszünk két szabályt, egy ami befelé (in) enged mindent, és egyet ami kifelé (out) enged mindent
-      - tiltások: 
-  +--------- még nincs megcsinálva
+      - tiltások:
+        - interface vlan20, direction in, source vlan20 net, protocol tcp/udp, destination vlan30 net, destination port other, range 10000
+        - interface vlan30, direction in, source 10.0.30.10/32, protocol tcp/udp, destination 10.0.20.10/32, destination port other, range 9000
 
 R3  - LEKLÓNOZZUK AZ R2-ŐT, DE MÉG NEM INDÍTJUK EL
     - létrehozzuk a vmbr3-at ha még nem tettünk
@@ -45,7 +47,81 @@ R3  - LEKLÓNOZZUK AZ R2-ŐT, DE MÉG NEM INDÍTJUK EL
       - WAN, Y, n, enter, y, n, enter, n, n, n
       - LAN, n, 20.0.0.1, 24, enter, y, n, enter, y, 20.0.0.150, 20.0.0.200, n, n, n
     (- ilyenkor érdemes visszatérni a DHCP-nél a statikus mapping-hez, mivel már megvan a mac address)
-    
+
+Containerek: név, jelszó, erőforrásoknál több legyen a szervernek, network-nél jó bridge, jó vlan, jó ip cím, jó gateway
+    (- apt update és apt ugrade is lehet akár)
+
+!!!Wazzuh még nincs biztosan megcsinálva
+!Wazzuh Szerver
+!    - adduser student
+!    - usermod -aG sudo student
+!    - su student
+!    - cd
+!    - https://docs.docker.com/engine/install/ubuntu/ (apt-os download)
+!    - sudo usermod -aG docker student
+!    - https://documentation.wazuh.com/current/deployment-options/docker/wazuh-container.html , single node, git clone-os parancs, wazzuh self-signed certificates (2. lépése csak), deployment
+
+AM  - https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html (ubuntu)
+    - cd ./etc/ansible
+    - nano hosts
+        [system:children]
+        vlan20
+        vlan30
+
+        [vlan20]
+        10.0.20.20
+
+        [vlan30]
+        10.0.30.10
+
+        [system:vars]
+        ansible_user=ansible
+        ansible_password=ansible
+        ansible_become_user=ansible
+        ansible_become_method=sudo
+        ansible_become_password=ansible
+        -nano ansible.cfg
+            [defaults]
+            host_key_checking = false #kényelmi beállítás
+        - ansible all -m ansible.builtin.ping
+
+TESZT, AS1
+    - adduser ansible (ansible jelszóval, többi nem kell)
+    - usermod -aG sudo ansible
+
+TESZT, BASTION, INSIDE
+    - adduser student (student jelszó)
+
+BASTION
+    - nano /etc/ssh/sshd_config: PasswordAuthentication no , majd systemctl restart ssh
+    - nano /etc/hosts.allow: sshd: 10.0.30.10
+    - nano /etc/hosts.deny: sshd: all
+    (- mindent student felhasználóval csináljunk, student-nél legyenek a .ssh mappák)
+    - (TESZT gépen ssh-keygen) nano ./ssh/authorized_keys: <TESZT gép .ssh/id_rsa.pub kulcsa>
+    - ssh-keygen
+
+TESZT
+    - ssh-keygen
+    - nano .ssh/config
+        Host bastion
+          User student
+          IdentityFile /home/student/.ssh/id_rsa
+          Port 22
+          HostName 10.0.30.20
+        Host belso1
+          User student
+          IdentityFile /home/student/.ssh/id_rsa
+          Port 22
+          HostName 10.0.30.30
+          ProxyJump bastion
+((nem vagyok 100%-ig biztos az identityfile-ban))
+
+
+INSIDE
+    - nano /etc/ssh/sshd_config: PasswordAuthentication no , majd systemctl restart ssh
+    - (BASTION gépen ssh-keygen) nano ./ssh/authorized_keys: BASTION gép .ssh/id_rsa.pub kulcsa>
+
+
 
 -----------------------
 
@@ -66,7 +142,7 @@ login: root student
 .ssh/config kliensen:
 Host bastion
   User student #célpont gépen név
-  IdentityFile /home/student/.shh/bastion #saját gépen lévő fájl
+  IdentityFile /home/student/.ssh/bastion #saját gépen lévő fájl
   Port 22 #célpont nyitott portja
   HostName <ip> #célpont ipje
 Host belso1
@@ -87,7 +163,9 @@ bastion-ön és belső gépe(ke)n /etc/ssh/sshd_config: PasswordAuthentication n
   docker -> containerization
   VM, megfelelő erőforrások, hálózatba bevonás
   rássh-zunk egy grafikus gépről (tűzfalon engedjük át), https://docs.docker.com/engine/install/ubuntu/ első három (apt-os download)
-  felhasználó docker csoporthoz: sudo usermod -aG docker student, újracsatlakozol ssh-n
+  adduser student
+  sudo usermod -aG sudo student
+  sudo usermod -aG docker student
   wazzuh docker: https://documentation.wazuh.com/current/deployment-options/docker/wazuh-container.html , single node, git clone-os parancs, wazzuh self-signed certificates (optional nem számít), deployment
   wazuh agent: valamelyik másik gépre, https://documentation.wazuh.com/current/installation-guide/wazuh-agent/wazuh-agent-package-linux.html
 
