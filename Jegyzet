@@ -84,7 +84,7 @@ Wazuh szerver:
         sudo val mindent !!! ( minden elé sudo -t írjunk, kivéve cd :))
 
     - most várni kell egy két percet mire beindul utána fel lehet lépni management gépből vmbr3 on a:
-    - https://20.0.0.10/
+        https://20.0.0.10/
         username: admin
         password: SecretPassword
 
