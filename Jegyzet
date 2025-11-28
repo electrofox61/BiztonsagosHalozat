@@ -37,8 +37,8 @@ R2  - megfelelő bridge-ket beállítjuk, WAN oldalra már vmbr1, LAN oldalra vm
       - ha ezekkel megvagyunk akkor következőnek a tűzfal jön:
         - minden vlan-hoz beteszünk két szabályt, egy ami befelé (in) enged mindent, és egyet ami kifelé (out) enged mindent
       - tiltások:
-        - interface vlan20, direction in, source vlan20 net, protocol tcp/udp, destination vlan30 net, destination port other, range 10000
-        - interface vlan30, direction in, source 10.0.30.10/32, protocol tcp/udp, destination 10.0.20.10/32, destination port other, range 9000
+        - interface vlan20, direction in, protocol tcp/udp, source vlan20 net, destination vlan30 net, destination port other, range 10000
+        - interface vlan30, direction in, protocol tcp/udp, source 10.0.30.10/32, destination 10.0.20.10/32, destination port other, range 9000
 
 R3  - LEKLÓNOZZUK AZ R2-ŐT, DE MÉG NEM INDÍTJUK EL
     - létrehozzuk a vmbr3-at ha még nem tettünk
@@ -46,7 +46,10 @@ R3  - LEKLÓNOZZUK AZ R2-ŐT, DE MÉG NEM INDÍTJUK EL
     - belépés után átállítjuk az ip-ket:
       - WAN, Y, n, enter, y, n, enter, n, n, n
       - LAN, n, 20.0.0.1, 24, enter, y, n, enter, y, 20.0.0.150, 20.0.0.200, n, n, n
-    (- ilyenkor érdemes visszatérni a DHCP-nél a statikus mapping-hez, mivel már megvan a mac address)
+    (- ilyenkor érdemes visszatérni az R2-nél a DHCP-nél a statikus mapping-hez, mivel már megvan a mac address)
+    - ping google.com tesztelése
+        - ha nem működik, akkor ping 10.0.10.50 tesztelése    
+        - ha ez se működik akkor web gui-ban: system -> gateways -> configuration, amelyiknél "(upstream)" van írva azt szerkesszük és vegyük ki
 
 Containerek: név, jelszó, erőforrásoknál több legyen a szervernek, network-nél jó bridge, jó vlan, jó ip cím, jó gateway
     (- apt update és apt ugrade is lehet akár)
