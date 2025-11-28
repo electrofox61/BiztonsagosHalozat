@@ -54,15 +54,46 @@ R3  - LEKLÓNOZZUK AZ R2-ŐT, DE MÉG NEM INDÍTJUK EL
 Containerek: név, jelszó, erőforrásoknál több legyen a szervernek, network-nél jó bridge, jó vlan, jó ip cím, jó gateway
     (- apt update és apt ugrade is lehet akár)
 
-!!!Wazzuh még nincs biztosan megcsinálva
-!Wazzuh Szerver
-!    - adduser student
-!    - usermod -aG sudo student
-!    - su student
-!    - cd
-!    - https://docs.docker.com/engine/install/ubuntu/ (apt-os download)
-!    - sudo usermod -aG docker student
-!    - https://documentation.wazuh.com/current/deployment-options/docker/wazuh-container.html , single node, git clone-os parancs, wazzuh self-signed certificates (2. lépése csak), deployment
+Wazuh szerver:
+    - VM GÉP KELL, storage: netsec, iso image: ubuntu 24.04, disk size: 80gb jó, legalább 4 core, 10gb ram,  vmbr3 !!
+    - telepítése
+        layout hungarian
+        ip: subnet: 20.0.0.0//24
+        address: 20.0.0.10
+        gateway: 20.0.0.1
+        name servers: 20.0.0.1
+        servers name: wazuhszerver
+        username: student
+        password: student
+        install OpenSSH server ez kell!!
+        done -> reboot -> enter
+    - beállítása
+        sudo apt update
+        sudo apt upgrade
+        sudo -i
+        sudo passwd root -> student legyen a jelszó
+        usermod -aG sudo student
+        su student 
+    - (most be kell lépni sshval egy másik gépről hogy be lehessen másolni a linkeket!!!)
+        ssh student@20.0.0.10
+
+    - docker telepítés: https://docs.docker.com/engine/install/ubuntu/
+        Install using the apt repository tól hello-world ig.
+
+    - wazuh telepítés: https://documentation.wazuh.com/current/deployment-options/docker/wazuh-container.html#single-node-stack
+        sudo val mindent !!! ( minden elé sudo -t írjunk, kivéve cd :))
+
+    - most várni kell egy két percet mire beindul utána fel lehet lépni management gépből vmbr3 on a:
+    - https://20.0.0.10/
+        username: admin
+        password: SecretPassword
+
+Wazuh agent:
+    - https://documentation.wazuh.com/current/installation-guide/wazuh-agent/wazuh-agent-package-linux.html
+        az első 4 és a 2 deployos kell 
+        a Deploy nál (WAZUH_MANAGER="10.0.0.2" apt-get install wazuh-agent) át kell írni az ipt! erre:
+        WAZUH_MANAGER="20.0.0.10" apt-get install wazuh-agent
+
 
 AM  - https://docs.ansible.com/ansible/latest/installation_guide/installation_distros.html (ubuntu)
     - cd ./etc/ansible
@@ -123,6 +154,8 @@ TESZT
 INSIDE
     - nano /etc/ssh/sshd_config: PasswordAuthentication no , majd systemctl restart ssh
     - (BASTION gépen ssh-keygen) nano ./ssh/authorized_keys: BASTION gép .ssh/id_rsa.pub kulcsa>
+
+
 
 
 
