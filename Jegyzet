@@ -153,7 +153,8 @@ TESZT
 
 INSIDE
     - nano /etc/ssh/sshd_config: PasswordAuthentication no , majd systemctl restart ssh
-    - (BASTION gépen ssh-keygen) nano ./.ssh/authorized_keys: BASTION gép .ssh/id_rsa.pub kulcsa>
+    - (BASTION gépen ssh-keygen) nano ./.ssh/authorized_keys: BASTION gép .ssh/id_rsa.pub kulcsa
+    - (TESZT gépen ssh-keygen) nano ./.ssh/authorized_keys: TESZT gép .ssh/id_rsa.pub kulcsa
 
 
 
