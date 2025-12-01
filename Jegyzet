@@ -131,7 +131,7 @@ BASTION
     - nano /etc/hosts.allow: sshd: 10.0.30.10
     - nano /etc/hosts.deny: sshd: all
     (- mindent student felhasználóval csináljunk, student-nél legyenek a .ssh mappák)
-    - (TESZT gépen ssh-keygen) nano ./ssh/authorized_keys: <TESZT gép .ssh/id_rsa.pub kulcsa>
+    - (TESZT gépen ssh-keygen) nano ./.ssh/authorized_keys: <TESZT gép .ssh/id_rsa.pub kulcsa>
     - ssh-keygen
 
 TESZT
@@ -153,7 +153,7 @@ TESZT
 
 INSIDE
     - nano /etc/ssh/sshd_config: PasswordAuthentication no , majd systemctl restart ssh
-    - (BASTION gépen ssh-keygen) nano ./ssh/authorized_keys: BASTION gép .ssh/id_rsa.pub kulcsa>
+    - (BASTION gépen ssh-keygen) nano ./.ssh/authorized_keys: BASTION gép .ssh/id_rsa.pub kulcsa>
 
 
 
